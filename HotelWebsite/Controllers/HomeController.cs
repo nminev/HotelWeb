@@ -13,12 +13,7 @@ namespace HotelWebsite.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private List<Offer> InMemoryStore;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-            InMemoryStore = new List<Offer>()
+        private List<Offer> InMemoryStore = new List<Offer>()
             {
                 new Offer {
                     ID=0,
@@ -33,6 +28,11 @@ namespace HotelWebsite.Controllers
                     Price = 332
                 }
             };
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+           
         }
 
         public IActionResult Index()
@@ -78,10 +78,14 @@ namespace HotelWebsite.Controllers
             return View(result);
         }
 
-        [HttpPut]
+        [HttpPost]
         public IActionResult PutOffer(EditOfferViewModel editOffer)
         {
             var offer = InMemoryStore.Single(x => x.ID == editOffer.ID);
+
+            offer.Description = editOffer.Description;
+            offer.Name = editOffer.Name;
+            offer.Price = editOffer.Price;
 
             return View("Index");
         }
