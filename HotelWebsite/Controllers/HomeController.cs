@@ -13,26 +13,12 @@ namespace HotelWebsite.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private List<Offer> InMemoryStore = new List<Offer>()
-            {
-                new Offer {
-                    ID=0,
-                    Name = "Offer One",
-                    Description = "Fist offer to see how it will look",
-                    Price=123
-                },
-                new Offer{
-                    ID=1,
-                    Name = "This is Two",
-                    Description = "This is the second offer, purely for testing purpouses",
-                    Price = 332
-                }
-            };
+        private ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
-           
+            _context = context;
         }
 
         public IActionResult Index()
@@ -43,7 +29,7 @@ namespace HotelWebsite.Controllers
         public IActionResult Offers()
         {
             var result = new List<OffersViewModel>();
-            foreach (var item in InMemoryStore)
+            foreach (var item in _context.Offers)
             {
                 result.Add(new OffersViewModel { ID = item.ID, Name = item.Name });
             }
@@ -52,7 +38,7 @@ namespace HotelWebsite.Controllers
 
         public IActionResult Offer(int id)
         {
-            var offer = InMemoryStore.Single(x => x.ID == id);
+            var offer = _context.Offers.Single(x => x.ID == id);
             var result = new OfferViewModel
             {
                 ID = offer.ID,
@@ -67,7 +53,7 @@ namespace HotelWebsite.Controllers
 
         public IActionResult EditOffer(int id)
         {
-            var offer = InMemoryStore.Single(x => x.ID == id);
+            var offer = _context.Offers.Single(x => x.ID == id);
             var result = new EditOfferViewModel
             {
                 ID = offer.ID,
@@ -79,14 +65,15 @@ namespace HotelWebsite.Controllers
         }
 
         [HttpPost]
-        public IActionResult PutOffer(EditOfferViewModel editOffer)
+        public IActionResult UpdateOffer(EditOfferViewModel editOffer)
         {
-            var offer = InMemoryStore.Single(x => x.ID == editOffer.ID);
+            var offer = _context.Offers.Single(x => x.ID == editOffer.ID);
 
             offer.Description = editOffer.Description;
             offer.Name = editOffer.Name;
             offer.Price = editOffer.Price;
 
+            _context.SaveChanges();
             return View("Index");
         }
 
