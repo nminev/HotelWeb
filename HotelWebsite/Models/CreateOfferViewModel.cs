@@ -6,16 +6,13 @@ using System.Threading.Tasks;
 
 namespace HotelWebsite.Models
 {
-    public class OfferViewModel
+    public class CreateOfferViewModel
     {
-        public int ID { get; set; }
-        [Range(0, int.MaxValue)]
+        [Range(0,int.MaxValue)]
         public int Price { get; set; }
         [StringLength(50)]
         public string Name { get; set; }
         [StringLength(255)]
         public string Description { get; set; }
-        [Range(0,5)]
-        public double Rating { get; set; }
     }
 }

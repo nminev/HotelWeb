@@ -15,8 +15,6 @@ namespace HotelWebsite.Data
 
         public string Description { get; set; }
 
-        public string Review { get; set; }
-
         public double Rating { get; set; }
 
     }

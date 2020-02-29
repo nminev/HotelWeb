@@ -20,3 +20,10 @@
         }
     </div>
 </div>
+<div>
+    @if (User.IsInRole("Admin"))
+    {
+        @Html.ActionLink("Create", "CreateOffer");
+        <span>|</span>
+    }
+</div>

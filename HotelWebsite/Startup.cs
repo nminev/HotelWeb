@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Threading.Tasks;
 
 namespace HotelWebsite
 {
@@ -70,9 +71,9 @@ namespace HotelWebsite
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-            CreateRoles(serviceProvider);
+            CreateRoles(serviceProvider).Wait();
         }
-        private void CreateRoles(IServiceProvider serviceProvider)
+        private async Task CreateRoles(IServiceProvider serviceProvider)
         {
             //initializing custom roles 
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -81,17 +82,17 @@ namespace HotelWebsite
             IdentityResult roleResult;
             foreach (var roleName in roleNames)
             {
-                var roleExist = RoleManager.RoleExistsAsync(roleName).Result;
+                var roleExist = await RoleManager.RoleExistsAsync(roleName);
                 // ensure that the role does not exist
                 if (!roleExist)
                 {
                     //create the roles and seed them to the database: 
-                    roleResult = RoleManager.CreateAsync(new IdentityRole(roleName)).Result;
+                    roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
 
             // find the user with the admin email 
-            var _user = UserManager.FindByEmailAsync("admin@email.com").Result;
+            var _user = await UserManager.FindByEmailAsync("admin@email.com");
 
             // check if the user exists
             if (_user == null)
@@ -104,12 +105,11 @@ namespace HotelWebsite
                 };
                 string adminPassword = "p@$$w0rd";
 
-                var createPowerUser = UserManager.CreateAsync(poweruser, adminPassword).Result;
+                var createPowerUser = await UserManager.CreateAsync(poweruser, adminPassword);
                 if (createPowerUser.Succeeded)
                 {
                     //here we tie the new user to the role
-                    UserManager.AddToRoleAsync(poweruser, "Admin");
-
+                    await UserManager.AddToRoleAsync(poweruser, "Admin");
                 }
             }
         }

@@ -1,0 +1,37 @@
+﻿@model HotelWebsite.Models.OfferViewModel
+
+<h1>Offer</h1>
+
+<div class="product-essential">
+    <div class="gallery">
+        <div class="picture">
+            <img src="https://picsum.photos/200/300" alt="Picture" id="main-product-img" />
+        </div>
+        <div class="picture-thumbs">
+            <div class="thumb-item"><img onclick="Test" src="https://picsum.photos/200/300" alt="Picture" /></div>
+            <div class="thumb-item"><img onclick="Test" src="https://picsum.photos/id/237/200/300" alt="Picture" /></div>
+        </div>
+    </div>
+    <div class="overview">
+        <div class="product-name"><h1>@Model.Name</h1></div>
+        <div class="short-description">@Model.Description</div>
+        <div class="product-reviews-overview">
+            <div class="product-review-box">
+                <div class="rating">
+                    <div style="width:0%">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="prices"><div class="product-price"><span>@Model.Price</span></div></div>
+    </div>
+</div>
+<div>
+    @if (User.IsInRole("Admin"))
+    {
+        @Html.ActionLink("Edit", "EditOffer", new { id = Model.ID });
+        <span>|</span>
+    }
+    <a asp-action="Offers">Back to List</a>
+</div>

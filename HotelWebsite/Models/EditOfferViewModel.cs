@@ -5,13 +5,8 @@ using System.Threading.Tasks;
 
 namespace HotelWebsite.Models
 {
-    public class EditOfferViewModel
+    public class EditOfferViewModel:CreateOfferViewModel
     {
         public int ID { get; set; }
-        public int Price { get; set; }
-
-        public string Name { get; set; }
-
-        public string Description { get; set; }
     }
 }
