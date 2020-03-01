@@ -14,5 +14,7 @@ namespace HotelWebsite.Models
         public string Name { get; set; }
         [StringLength(255)]
         public string Description { get; set; }
+        public DateTime AvailableFrom { get; set; }
+        public DateTime AvailableTo { get; set; }
     }
 }

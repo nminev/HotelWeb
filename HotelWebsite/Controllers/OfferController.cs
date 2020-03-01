@@ -34,9 +34,12 @@ namespace HotelWebsite.Controllers
         public IActionResult Offers()
         {
             var result = new List<OffersViewModel>();
-            foreach (var item in _context.Offers)
+            foreach (var item in _context.Offers.Where(x =>
+            x.AvailableFrom <= DateTime.Now &&
+            x.AvailableTo >= DateTime.Now &&
+            x.User == null))
             {
-                result.Add(new OffersViewModel { ID = item.ID, Name = item.Name });
+                result.Add(new OffersViewModel { ID = item.ID, Name = item.Name, Price = item.Price, Raiting = item.Rating });
             }
             return View(result);
         }
@@ -44,15 +47,18 @@ namespace HotelWebsite.Controllers
         [Authorize(Roles = "Admin,Member")]
         public IActionResult Offer(int id)
         {
-
             var offer = _context.Offers.Single(x => x.ID == id);
+            var test = offer.UserId;
             var result = new OfferViewModel
             {
                 ID = offer.ID,
                 Name = offer.Name,
                 Description = offer.Description,
-                Rating = offer.Rating,
-                Price = offer.Price
+                Raiting = offer.Rating,
+                Price = offer.Price,
+                AvailableFrom = offer.AvailableFrom,
+                AvailableTo = offer.AvailableTo,
+                IsBooked = offer.User!=null
             };
             return View(result);
         }
@@ -115,36 +121,65 @@ namespace HotelWebsite.Controllers
         public IActionResult CreateReview(int id)
         {
             var offerName = _context.Offers.Single(x => x.ID == id).Name;
-            var newReview = new CreateReviewViewModel
+            var reviews = _context.Reviews.Where(x => x.Offer.ID == id)?.ToList();
+            var offerReview = new CreateReviewViewModel
             {
                 OfferId = id,
-                OfferName = offerName
+                OfferName = offerName,
+                Reviews = reviews
             };
 
-            return View(newReview);
+            return View(offerReview);
         }
 
         [Authorize(Roles = "Admin,Member")]
         [HttpPost]
-        public IActionResult CreateReview(CreateReviewViewModel review)
+        public async Task<IActionResult> CreateReview(CreateReviewViewModel review)
         {
             var reviewOffer = _context.Offers.Single(x => x.ID == review.OfferId);
 
-            var user = _manager.GetUserAsync(HttpContext.User).Result;
+            var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
+
+            var OfferReviews = _context.Reviews.Where(x => x.Offer.ID == review.OfferId).ToList();
+
+            if (OfferReviews.Any())
+            {
+                var sum = OfferReviews.Sum(x => (double)x.Score) + review.Score;
+                var count = OfferReviews.Count() + 1;
+                reviewOffer.Rating = Math.Round(sum / count, 2);
+            }
+            else
+            {
+                reviewOffer.Rating = review.Score;
+            }
 
             _context.Reviews.Add(
-                new Review
-                {
-                    Title = review.Title,
-                    Comment = review.Comment,
-                    Score = review.Score,
-                    Offer = reviewOffer,
-                    Reviewer = user
-                });
+                 new Review
+                 {
+                     Title = review.Title,
+                     Comment = review.Comment,
+                     Score = review.Score,
+                     Offer = reviewOffer,
+                     Reviewer = user
+                 });
+
 
             _context.SaveChanges();
 
-            return RedirectToAction("Offers");
+            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offers"); }).ConfigureAwait(false);
+        }
+
+        public async Task<IActionResult> BookOffer(int id)
+        {
+            var offer = _context.Offers.Single(x => x.ID == id);
+
+            var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
+
+            offer.User = user;
+
+            _context.SaveChanges();
+
+            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id }); }).ConfigureAwait(false);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

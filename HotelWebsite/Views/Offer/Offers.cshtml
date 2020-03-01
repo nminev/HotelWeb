@@ -15,9 +15,22 @@
                     <div class="details">
                         <div class="product-title">@item.Name</div>
                     </div>
+                    <div class="product-rating-box">
+                        <div class="rating">
+                            <div style="width:@(item.Raiting * 20)%"></div>
+                        </div>
+                    </div>
+                    <div class="prices">
+                        <span class="price actual-price">$@item.Price</span>
+                    </div>
+                    <div class="button">
+                        <input type="button"
+                               value="Book"
+                               onclick="location.href='@Url.Action("BookOffer", "Offer",new { item.ID })'" />
+                    </div>
                 </div>
             </div>
-        }
+         }
     </div>
 </div>
 <div>

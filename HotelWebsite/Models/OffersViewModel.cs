@@ -10,5 +10,9 @@ namespace HotelWebsite.Models
         public int ID { get; set; }
 
         public string Name { get; set; }
+
+        public double Price { get; set; }
+
+        public double Raiting{ get; set; }
     }
 }

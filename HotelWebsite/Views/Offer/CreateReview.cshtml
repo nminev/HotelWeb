@@ -46,5 +46,36 @@
             </div>
         </form>
     </div>
+    @if (Model.Reviews.Any())
+    {
+        <div class="product-review-list">
+            <div class="title">
+                <strong>Existing reviews</strong>
+            </div>
+            @foreach (var review in Model.Reviews)
+            {
+                var ratingPercent = review.Score * 20;
+                <div class="product-review-item">
+                    <div class="review-item-head">
+                        <div class="review-title">
+                            <strong>@review.Title</strong>
+                        </div>
+                        <div class="product-review-box">
+                            <div class="rating">
+                                <div style="width: @(ratingPercent)%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-item-head">
+                        <div class="review-text">
+                            &nbsp
+                            @review.Comment
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
 

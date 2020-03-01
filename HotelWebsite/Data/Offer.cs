@@ -25,8 +25,11 @@ namespace HotelWebsite.Data
         public DateTime AvailableFrom { get; set; }
 
         public DateTime AvailableTo { get; set; }
-
-        public IdentityUser User { get; set; }
+        
+        public virtual IdentityUser User { get; set; }
+        
+        [ForeignKey("User")]
+        public string UserId { get; set; }
 
     }
 }
