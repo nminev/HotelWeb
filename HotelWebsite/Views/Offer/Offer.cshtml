@@ -23,6 +23,9 @@
                     </div>
                 </div>
             </div>
+            <div class="product-review-links">
+                <a asp-action="CreateReview" asp-controller="Offer" asp-route-id="@Model.ID">Leave a Review</a>
+            </div>
         </div>
         <div class="prices"><div class="product-price"><span>@Model.Price</span></div></div>
     </div>

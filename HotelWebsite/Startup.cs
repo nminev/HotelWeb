@@ -52,7 +52,7 @@ namespace HotelWebsite
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Offer/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -68,7 +68,7 @@ namespace HotelWebsite
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Offer}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
             CreateRoles(serviceProvider).Wait();
@@ -78,7 +78,7 @@ namespace HotelWebsite
             //initializing custom roles 
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            string[] roleNames = { "Admin", "Store-Manager", "Member" };
+            string[] roleNames = { "Admin", "Member" };
             IdentityResult roleResult;
             foreach (var roleName in roleNames)
             {

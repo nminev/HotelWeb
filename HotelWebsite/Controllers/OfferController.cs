@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using HotelWebsite.Models;
 using HotelWebsite.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace HotelWebsite.Controllers
 {
@@ -15,11 +16,13 @@ namespace HotelWebsite.Controllers
     {
         private readonly ILogger<OfferController> _logger;
         private ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _manager;
 
-        public OfferController(ILogger<OfferController> logger, ApplicationDbContext context)
+        public OfferController(ILogger<OfferController> logger, ApplicationDbContext context, UserManager<IdentityUser> manager)
         {
             _logger = logger;
             _context = context;
+            _manager = manager;
         }
 
         public IActionResult Index()
@@ -27,6 +30,7 @@ namespace HotelWebsite.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin,Member")]
         public IActionResult Offers()
         {
             var result = new List<OffersViewModel>();
@@ -37,9 +41,10 @@ namespace HotelWebsite.Controllers
             return View(result);
         }
 
+        [Authorize(Roles = "Admin,Member")]
         public IActionResult Offer(int id)
         {
-            
+
             var offer = _context.Offers.Single(x => x.ID == id);
             var result = new OfferViewModel
             {
@@ -77,7 +82,7 @@ namespace HotelWebsite.Controllers
             offer.Price = editOffer.Price;
 
             _context.SaveChanges();
-            return View("Offers");
+            return View("Index");
         }
 
         [Authorize(Roles = "Admin")]
@@ -92,14 +97,54 @@ namespace HotelWebsite.Controllers
         public IActionResult CreateOffer(CreateOfferViewModel createOffer)
         {
             _context.Offers.Add(
-                new Offer {
-                Name= createOffer.Name,
-                Price = createOffer.Price,
-                Description = createOffer.Description
+                new Offer
+                {
+                    Name = createOffer.Name,
+                    Price = createOffer.Price,
+                    Description = createOffer.Description
 
                 });
 
-            return View("Offers");
+            _context.SaveChanges();
+
+            return View("Index");
+        }
+
+        [Authorize(Roles = "Admin,Member")]
+        [HttpGet]
+        public IActionResult CreateReview(int id)
+        {
+            var offerName = _context.Offers.Single(x => x.ID == id).Name;
+            var newReview = new CreateReviewViewModel
+            {
+                OfferId = id,
+                OfferName = offerName
+            };
+
+            return View(newReview);
+        }
+
+        [Authorize(Roles = "Admin,Member")]
+        [HttpPost]
+        public IActionResult CreateReview(CreateReviewViewModel review)
+        {
+            var reviewOffer = _context.Offers.Single(x => x.ID == review.OfferId);
+
+            var user = _manager.GetUserAsync(HttpContext.User).Result;
+
+            _context.Reviews.Add(
+                new Review
+                {
+                    Title = review.Title,
+                    Comment = review.Comment,
+                    Score = review.Score,
+                    Offer = reviewOffer,
+                    Reviewer = user
+                });
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Offers");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
