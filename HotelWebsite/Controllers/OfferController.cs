@@ -39,7 +39,14 @@ namespace HotelWebsite.Controllers
             x.AvailableTo >= DateTime.Now &&
             x.User == null))
             {
-                result.Add(new OffersViewModel { ID = item.ID, Name = item.Name, Price = item.Price, Raiting = item.Rating });
+                result.Add(new OffersViewModel 
+                { 
+                    ID = item.ID, 
+                    Name = item.Name, 
+                    Price = item.Price, 
+                    Raiting = item.Rating,
+                    IsBooked = false
+                });
             }
             return View(result);
         }
@@ -58,7 +65,7 @@ namespace HotelWebsite.Controllers
                 Price = offer.Price,
                 AvailableFrom = offer.AvailableFrom,
                 AvailableTo = offer.AvailableTo,
-                IsBooked = offer.User!=null
+                IsBooked = offer.UserId!=null
             };
             return View(result);
         }
@@ -145,8 +152,8 @@ namespace HotelWebsite.Controllers
             if (OfferReviews.Any())
             {
                 var sum = OfferReviews.Sum(x => (double)x.Score) + review.Score;
-                var count = OfferReviews.Count() + 1;
-                reviewOffer.Rating = Math.Round(sum / count, 2);
+                var count = OfferReviews.Count + 1;
+                reviewOffer.Rating = sum / count;
             }
             else
             {
@@ -180,6 +187,21 @@ namespace HotelWebsite.Controllers
             _context.SaveChanges();
 
             return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id }); }).ConfigureAwait(false);
+        }
+        [Authorize(Roles = "Admin,Member")]
+        public IActionResult GetBookedOffers(string userId)
+        {
+            var test = _context.Offers
+                .Where(x => x.UserId == userId)
+                .Select(x=>new OffersViewModel 
+                {
+                    ID = x.ID,
+                    Name = x.Name,
+                    Price = x.Price,
+                    Raiting = x.Rating,
+                    IsBooked = true
+                }).ToList();
+            return View("Offers",test);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

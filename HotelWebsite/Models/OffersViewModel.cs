@@ -13,6 +13,8 @@ namespace HotelWebsite.Models
 
         public double Price { get; set; }
 
-        public double Raiting{ get; set; }
+        public double Raiting { get; set; }
+
+        public bool IsBooked { get; set; }
     }
 }
