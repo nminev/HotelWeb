@@ -26,16 +26,27 @@
                 <a asp-action="CreateReview" asp-controller="Offer" asp-route-id="@Model.ID">Leave a Review</a>
             </div>
         </div>
-        <div class="date">Availabe from : @Model.AvailableFrom</div>
-        <div class="date">Avaiable to : @Model.AvailableTo</div>
         <div class="prices"><div class="product-price"><span>$@Model.Price</span></div></div>
         @if (!Model.IsBooked)
         {
-            <div class="button">
-                <input type="button"
-                       value="Book"
-                       onclick="location.href='@Url.Action("BookOffer", "Offer",new { @Model.ID })'" />
-            </div>
+            <form asp-action="BookOffer">
+                <div class="form-group">
+                    <input class="form-control" hidden="hidden" value="@Model.ID" name="OfferId"/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"></label>
+                    <input type="datetime-local" class="form-control" value="@null" name="From"/>
+                    <span class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"></label>
+                    <input type="datetime-local" class="form-control" value="@null" name="To" />
+                    <span class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Book" class="btn btn-primary" />
+                </div>
+            </form>
         }
         else
         {

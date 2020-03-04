@@ -9,7 +9,7 @@ namespace HotelWebsite.Models
     public class OfferViewModel
     {
         private double price;
-
+        [Required]
         public int ID { get; set; }
         [Range(0, int.MaxValue)]
         public double Price { get{ return Math.Round(price, 2); } set => price = value; }
@@ -19,12 +19,6 @@ namespace HotelWebsite.Models
         public string Description { get; set; }
 
         public double Raiting { get; set; }
-
-        public int TotalReviews { get; set; }
-
-        public DateTime AvailableFrom { get; set; }
-
-        public DateTime AvailableTo { get; set; }
 
         public bool IsBooked { get; set; }
     }
