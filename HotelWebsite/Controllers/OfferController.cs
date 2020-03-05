@@ -39,11 +39,11 @@ namespace HotelWebsite.Controllers
             x.AvailableTo >= DateTime.Now &&
             x.User == null))
             {
-                result.Add(new OffersViewModel 
-                { 
-                    ID = item.ID, 
-                    Name = item.Name, 
-                    Price = item.Price, 
+                result.Add(new OffersViewModel
+                {
+                    ID = item.ID,
+                    Name = item.Name,
+                    Price = item.Price,
                     Raiting = item.Rating,
                     IsBooked = false
                 });
@@ -63,9 +63,7 @@ namespace HotelWebsite.Controllers
                 Description = offer.Description,
                 Raiting = offer.Rating,
                 Price = offer.Price,
-                AvailableFrom = offer.AvailableFrom,
-                AvailableTo = offer.AvailableTo,
-                IsBooked = offer.UserId!=null
+                IsBooked = offer.UserId != null
             };
             return View(result);
         }
@@ -176,9 +174,13 @@ namespace HotelWebsite.Controllers
             return await Task.Run<ActionResult>(() => { return RedirectToAction("Offers"); }).ConfigureAwait(false);
         }
 
-        public async Task<IActionResult> BookOffer(int id)
+        public async Task<IActionResult> BookOffer(BookOffer bookOffer)
         {
-            var offer = _context.Offers.Single(x => x.ID == id);
+            if (!this.ModelState.IsValid)
+            {
+                return BadRequest(this.ModelState);
+            }
+            var offer = _context.Offers.Single(x => x.ID == bookOffer.OfferId);    
 
             var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
 
@@ -186,14 +188,14 @@ namespace HotelWebsite.Controllers
 
             _context.SaveChanges();
 
-            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id }); }).ConfigureAwait(false);
+            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { bookOffer.OfferId }); }).ConfigureAwait(false);
         }
         [Authorize(Roles = "Admin,Member")]
         public IActionResult GetBookedOffers(string userId)
         {
             var test = _context.Offers
                 .Where(x => x.UserId == userId)
-                .Select(x=>new OffersViewModel 
+                .Select(x => new OffersViewModel
                 {
                     ID = x.ID,
                     Name = x.Name,
@@ -201,7 +203,7 @@ namespace HotelWebsite.Controllers
                     Raiting = x.Rating,
                     IsBooked = true
                 }).ToList();
-            return View("Offers",test);
+            return View("Offers", test);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
