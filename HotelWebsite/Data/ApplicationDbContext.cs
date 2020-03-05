@@ -11,7 +11,9 @@ namespace HotelWebsite.Data
     {
         public DbSet<Offer> Offers { get; set; }
 
-        public DbSet <Review> Reviews { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+
+        public DbSet<OfferImage> OfferImages { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -20,94 +22,72 @@ namespace HotelWebsite.Data
                 SeedData();
             }
         }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+
+            builder.Entity<OfferImage>()
+                       .HasKey(x => new { x.OfferId, x.ImagePath });
+
+            base.OnModelCreating(builder);
+        }
 
         private void SeedData()
         {
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "Costa Rica",
-                    Description = "Pretty Hotel in Costa Rica come and see it ",
-                    Price = 123,
-                    AvailableFrom = DateTime.Today.AddDays(-1),
-                    AvailableTo = DateTime.Today.AddDays(1)
-                });
+            var offerOne = new Offer
+            {
+                Name = "Costa Rica",
+                Description = "Pretty Hotel in Costa Rica come and see it ",
+                Price = 123
+            };
 
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Two",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today,
-                    AvailableTo = DateTime.Today.AddDays(32)
-                });
+            var offerTwo = new Offer
+            {
+                Name = "This is Two",
+                Description = "This is purely for testing purpouses",
+                Price = 332
+            };
 
-
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Two",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today.AddDays(-2),
-                    AvailableTo = DateTime.Today.AddDays(1)
-                });
+            var offerThree = new Offer
+            {
+                Name = "This is Two",
+                Description = "This is purely for testing purpouses",
+                Price = 332
+            };
 
 
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Three",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today.AddDays(-12),
-                    AvailableTo = DateTime.Today.AddDays(111)
-                });
 
+            var offerFour = new Offer
+            {
+                Name = "This is Three",
+                Description = "This is purely for testing purpouses",
+                Price = 332
+            };
 
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Four",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today,
-                    AvailableTo = DateTime.Today.AddDays(33)
-                });
-
-
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Five",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today,
-                    AvailableTo = DateTime.Today.AddDays(7)
-                });
-
-
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Six",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today,
-                    AvailableTo = DateTime.Today.AddDays(16)
-                });
-
-
-            this.Offers.Add(
-                new Offer
-                {
-                    Name = "This is Seven",
-                    Description = "This is purely for testing purpouses",
-                    Price = 332,
-                    AvailableFrom = DateTime.Today,
-                    AvailableTo = DateTime.Today.AddDays(69)
-                });
+            this.OfferImages.Add(new OfferImage
+            {
+                ImagePath = "../../images/Hotel-placeholder-1.png",
+                Offer= offerOne
+            });
+            this.OfferImages.Add(new OfferImage
+            {
+                ImagePath = "../../images/hotel-placeholder-2.png",
+                Offer = offerOne
+            });
+            this.OfferImages.Add(new OfferImage
+            {
+                ImagePath = "../../images/Hotel-placeholder-1.png",
+                Offer = offerTwo
+            });
+            this.OfferImages.Add(new OfferImage
+            {
+                ImagePath = "../../images/Hotel-placeholder-1.png",
+                Offer = offerThree
+            });
+            this.OfferImages.Add(new OfferImage
+            {
+                ImagePath = "../../images/Hotel-placeholder-1.png",
+                Offer = offerFour
+            });
             this.SaveChanges();
         }
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using HotelWebsite.Models;
 using HotelWebsite.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace HotelWebsite.Controllers
 {
@@ -35,17 +35,18 @@ namespace HotelWebsite.Controllers
         {
             var result = new List<OffersViewModel>();
             foreach (var item in _context.Offers.Where(x =>
-            x.AvailableFrom <= DateTime.Now &&
-            x.AvailableTo >= DateTime.Now &&
             x.User == null))
             {
+                var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
+
                 result.Add(new OffersViewModel
                 {
                     ID = item.ID,
                     Name = item.Name,
                     Price = item.Price,
                     Raiting = item.Rating,
-                    IsBooked = false
+                    IsBooked = false,
+                    ImageSrc = imageSrc
                 });
             }
             return View(result);
@@ -55,7 +56,9 @@ namespace HotelWebsite.Controllers
         public IActionResult Offer(int id)
         {
             var offer = _context.Offers.Single(x => x.ID == id);
-            var test = offer.UserId;
+
+            var imagesSrc = _context.OfferImages.Where(x => x.OfferId == id).Select(x => x.ImagePath).ToList();
+
             var result = new OfferViewModel
             {
                 ID = offer.ID,
@@ -63,7 +66,8 @@ namespace HotelWebsite.Controllers
                 Description = offer.Description,
                 Raiting = offer.Rating,
                 Price = offer.Price,
-                IsBooked = offer.UserId != null
+                IsBooked = offer.UserId != null,
+                ImagesSrc = imagesSrc
             };
             return View(result);
         }
@@ -88,11 +92,27 @@ namespace HotelWebsite.Controllers
         {
             var offer = _context.Offers.Single(x => x.ID == editOffer.ID);
 
+            if (editOffer.ImageName != null)
+            {
+                var imagePath = "../../images/" + editOffer.ImageName;
+                if (Utility.CheckIfImageExists(imagePath))
+                {
+                    return BadRequest("FileNotFound");
+                }
+                _context.OfferImages.Add(new OfferImage { Offer = offer, ImagePath = imagePath });
+            }
             offer.Description = editOffer.Description;
             offer.Name = editOffer.Name;
             offer.Price = editOffer.Price;
+            try
+            {
+                _context.SaveChanges();
 
-            _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
             return View("Index");
         }
 
@@ -107,14 +127,38 @@ namespace HotelWebsite.Controllers
         [HttpPost]
         public IActionResult CreateOffer(CreateOfferViewModel createOffer)
         {
-            _context.Offers.Add(
-                new Offer
-                {
-                    Name = createOffer.Name,
-                    Price = createOffer.Price,
-                    Description = createOffer.Description
+            if (createOffer.ImageName == null)
+            {
+                _context.Offers.Add(
+               new Offer
+               {
+                   Name = createOffer.Name,
+                   Price = createOffer.Price,
+                   Description = createOffer.Description
 
+               });
+
+            }
+            else
+            {
+                var imagePath = "../../images/" + createOffer.ImageName;
+                if (Utility.CheckIfImageExists(imagePath))
+                {
+                    return BadRequest("FileNotFound");
+                }
+
+                _context.OfferImages.Add(new OfferImage
+                {
+                    Offer = new Offer
+                    {
+                        Name = createOffer.Name,
+                        Price = createOffer.Price,
+                        Description = createOffer.Description
+
+                    },
+                    ImagePath = imagePath
                 });
+            }
 
             _context.SaveChanges();
 
@@ -176,11 +220,15 @@ namespace HotelWebsite.Controllers
 
         public async Task<IActionResult> BookOffer(BookOffer bookOffer)
         {
+            if (bookOffer.From>bookOffer.To)
+            {
+                return BadRequest("From date should be smaller then to date");
+            }
             if (!this.ModelState.IsValid)
             {
                 return BadRequest(this.ModelState);
             }
-            var offer = _context.Offers.Single(x => x.ID == bookOffer.OfferId);    
+            var offer = _context.Offers.Single(x => x.ID == bookOffer.OfferId);
 
             var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
 
@@ -188,23 +236,55 @@ namespace HotelWebsite.Controllers
 
             _context.SaveChanges();
 
-            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { bookOffer.OfferId }); }).ConfigureAwait(false);
+            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id = bookOffer.OfferId }); }).ConfigureAwait(false);
         }
         [Authorize(Roles = "Admin,Member")]
         public IActionResult GetBookedOffers(string userId)
         {
-            var test = _context.Offers
-                .Where(x => x.UserId == userId)
-                .Select(x => new OffersViewModel
+            List<OffersViewModel> result = new List<OffersViewModel>();
+            var offers = _context.Offers
+                .Where(x => x.UserId == userId).ToList();
+            foreach (var item in offers)
+            {
+                var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
+
+                result.Add( new OffersViewModel
                 {
-                    ID = x.ID,
-                    Name = x.Name,
-                    Price = x.Price,
-                    Raiting = x.Rating,
-                    IsBooked = true
-                }).ToList();
-            return View("Offers", test);
+                    ID = item.ID,
+                    Name = item.Name,
+                    Price = item.Price,
+                    Raiting = item.Rating,
+                    IsBooked = true,
+                    ImageSrc = imageSrc
+                });
+            }
+               
+            return View("Offers", result);
         }
+
+        //[Authorize(Roles = "Admin")]
+        //[HttpGet]
+        //public IActionResult EditImages(int offerId)
+        //{
+        //    var editImage = _context.OfferImages.Where(x => x.OfferId == offerId).Select(x => new EditImages
+        //    {
+        //        OfferId = offerId,
+        //        ImageName = GetImageName(x.ImagePath)
+        //    }).ToList();
+
+        //    return View("EditImages", editImage);
+        //}
+
+        //[Authorize(Roles = "Admin")]
+        //[HttpPost]
+        //public IActionResult AddImage(Edi editImages)
+        //{
+        //    var editImage = _context.OfferImages.Where(x => x.OfferId == editImages.OfferId).ToList();
+
+
+
+        //    return View("EditImages", editImage);
+        //}
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

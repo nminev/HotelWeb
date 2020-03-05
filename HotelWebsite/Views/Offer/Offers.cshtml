@@ -9,7 +9,14 @@
                 <div class="product-item">
                     <div class="picture">
                         <a asp-area="" asp-controller="Offer" asp-action="Offer" asp-route-id="@item.ID">
-                            <img src="https://picsum.photos/200/300" alt="Product">
+                            @if (item.ImageSrc != null)
+                            {
+                                <img src="@item.ImageSrc" alt="Product">
+                            }
+                            else
+                            {
+                                <img src="../../images/Hotel-placeholder-1.png" alt="Product">
+                            }
                         </a>
                     </div>
                     <div class="details">
@@ -28,7 +35,7 @@
                         <div class="button">
                             <input type="button"
                                    value="Book"
-                                   onclick="location.href='@Url.Action("BookOffer", "Offer",new { item.ID })'" />
+                                   onclick="location.href='@Url.Action("Offer", "Offer",new { item.ID })'" />
                         </div>
                     }
                     else

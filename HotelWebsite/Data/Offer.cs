@@ -22,9 +22,9 @@ namespace HotelWebsite.Data
 
         public double Rating { get; set; }
 
-        public DateTime AvailableFrom { get; set; }
+        public DateTime? AvailableFrom { get; set; }
 
-        public DateTime AvailableTo { get; set; }
+        public DateTime? AvailableTo { get; set; }
         
         public virtual IdentityUser User { get; set; }
         

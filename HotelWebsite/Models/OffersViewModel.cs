@@ -19,5 +19,7 @@ namespace HotelWebsite.Models
         public double Raiting { get; set; }
 
         public bool IsBooked { get; set; }
+
+        public string ImageSrc { get; set; }
     }
 }

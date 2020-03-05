@@ -1,16 +1,31 @@
 ﻿@model HotelWebsite.Models.OfferViewModel
-
+@{
+    var image = Model.ImagesSrc.FirstOrDefault();
+}
 <h1>Offer</h1>
 
 <div class="product-essential">
     <div class="gallery">
         <div class="picture">
-            <img src="https://picsum.photos/200/300" alt="Picture" id="main-product-img" />
+            @if (image == null)
+            {
+                <img src="../../images/Hotel-placeholder-1.png" alt="Picture" id="main-product-img" />
+            }
+            else
+            {
+                <img src="@image" alt="Picture" id="main-product-img" />
+            }
         </div>
-        <div class="picture-thumbs">
-            <div class="thumb-item"><img onclick="Test" src="https://picsum.photos/200/300" alt="Picture" /></div>
-            <div class="thumb-item"><img onclick="Test" src="https://picsum.photos/id/237/200/300" alt="Picture" /></div>
-        </div>
+        @if (image != null)
+        {
+
+    <div class="picture-thumbs">
+        @foreach (var item in Model.ImagesSrc)
+        {
+            <div class="thumb-item"><img  src="@item" alt="Picture" /></div>
+        }
+    </div>
+        }
     </div>
     <div class="overview">
         <div class="product-name"><h1>@Model.Name</h1></div>
@@ -31,16 +46,16 @@
         {
             <form asp-action="BookOffer">
                 <div class="form-group">
-                    <input class="form-control" hidden="hidden" value="@Model.ID" name="OfferId"/>
+                    <input class="form-control" hidden="hidden" value="@Model.ID" name="OfferId" />
                 </div>
                 <div class="form-group">
                     <label class="control-label"></label>
-                    <input type="datetime-local" class="form-control" value="@null" name="From"/>
+                    <input type="date" class="form-control" value="@null" name="From" />
                     <span class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label class="control-label"></label>
-                    <input type="datetime-local" class="form-control" value="@null" name="To" />
+                    <input type="date" class="form-control" value="@null" name="To" />
                     <span class="text-danger"></span>
                 </div>
                 <div class="form-group">
