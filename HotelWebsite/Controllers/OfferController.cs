@@ -9,6 +9,7 @@ using HotelWebsite.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System;
+using Microsoft.AspNetCore.Hosting;
 
 namespace HotelWebsite.Controllers
 {
@@ -17,12 +18,14 @@ namespace HotelWebsite.Controllers
         private readonly ILogger<OfferController> _logger;
         private ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _manager;
+        private readonly IWebHostEnvironment _env;
 
-        public OfferController(ILogger<OfferController> logger, ApplicationDbContext context, UserManager<IdentityUser> manager)
+        public OfferController(ILogger<OfferController> logger, ApplicationDbContext context, UserManager<IdentityUser> manager, IWebHostEnvironment env)
         {
             _logger = logger;
             _context = context;
             _manager = manager;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -94,8 +97,10 @@ namespace HotelWebsite.Controllers
 
             if (editOffer.ImageName != null)
             {
+                string contentRootPath = _env.ContentRootPath;
+                string webRootPath = _env.WebRootPath;
                 var imagePath = "../../images/" + editOffer.ImageName;
-                if (Utility.CheckIfImageExists(imagePath))
+                if (!Utility.CheckIfImageExists(_env, editOffer.ImageName))
                 {
                     return BadRequest("FileNotFound");
                 }
@@ -142,7 +147,7 @@ namespace HotelWebsite.Controllers
             else
             {
                 var imagePath = "../../images/" + createOffer.ImageName;
-                if (Utility.CheckIfImageExists(imagePath))
+                if (!Utility.CheckIfImageExists(_env, imagePath))
                 {
                     return BadRequest("FileNotFound");
                 }
@@ -185,6 +190,10 @@ namespace HotelWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateReview(CreateReviewViewModel review)
         {
+            if (!this.ModelState.IsValid)
+            {
+                return BadRequest(this.ModelState);
+            }
             var reviewOffer = _context.Offers.Single(x => x.ID == review.OfferId);
 
             var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
@@ -217,10 +226,10 @@ namespace HotelWebsite.Controllers
 
             return await Task.Run<ActionResult>(() => { return RedirectToAction("Offers"); }).ConfigureAwait(false);
         }
-
+        [Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> BookOffer(BookOffer bookOffer)
         {
-            if (bookOffer.From>bookOffer.To)
+            if (bookOffer.From > bookOffer.To)
             {
                 return BadRequest("From date should be smaller then to date");
             }
@@ -231,9 +240,13 @@ namespace HotelWebsite.Controllers
             var offer = _context.Offers.Single(x => x.ID == bookOffer.OfferId);
 
             var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
-
+            if (user == null)
+            {
+                return BadRequest("User is null");
+            }
             offer.User = user;
-
+            offer.AvailableFrom = bookOffer.From;
+            offer.AvailableTo = bookOffer.To;
             _context.SaveChanges();
 
             return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id = bookOffer.OfferId }); }).ConfigureAwait(false);
@@ -248,7 +261,7 @@ namespace HotelWebsite.Controllers
             {
                 var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
 
-                result.Add( new OffersViewModel
+                result.Add(new OffersViewModel
                 {
                     ID = item.ID,
                     Name = item.Name,
@@ -258,7 +271,7 @@ namespace HotelWebsite.Controllers
                     ImageSrc = imageSrc
                 });
             }
-               
+
             return View("Offers", result);
         }
 
