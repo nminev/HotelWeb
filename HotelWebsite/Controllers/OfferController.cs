@@ -147,7 +147,7 @@ namespace HotelWebsite.Controllers
             else
             {
                 var imagePath = "../../images/" + createOffer.ImageName;
-                if (!Utility.CheckIfImageExists(_env, imagePath))
+                if (!Utility.CheckIfImageExists(_env, createOffer.ImageName))
                 {
                     return BadRequest("FileNotFound");
                 }

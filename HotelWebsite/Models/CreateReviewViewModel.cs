@@ -9,7 +9,6 @@ namespace HotelWebsite.Models
 {
     public class CreateReviewViewModel
     {
-        [Required]
         public string OfferName { get; set; }
 
         [Required]
