@@ -10,15 +10,5 @@ namespace HotelWebsite.Models
     {
         [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than {1}")]
         public int OfferId { get; set; }
-
-        [Required]
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
-        public DateTime? From { get; set; }
-
-        [Required]
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
-        public DateTime? To { get; set; }
     }
 }
