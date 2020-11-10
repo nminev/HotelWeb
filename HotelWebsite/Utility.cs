@@ -14,9 +14,9 @@ namespace HotelWebsite
         {
             string webRootPath = Path.Combine(_env.WebRootPath,"images");
             DirectoryInfo dInfo = new DirectoryInfo(webRootPath);
-            var test = dInfo.GetFilesByExtensions(".jpg", "png");
-            var boo= test.Any(x => x.Name == imageName);
-            return boo;
+            var files = dInfo.GetFilesByExtensions(".jpg", ".png");
+            var isfound= files.Any(x => x.Name == imageName);
+            return isfound;
         }
 
         public static IEnumerable<FileInfo> GetFilesByExtensions(this DirectoryInfo dir, params string[] extensions)

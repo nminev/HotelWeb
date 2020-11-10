@@ -169,7 +169,7 @@ namespace HotelWebsite.Controllers
             else
             {
                 var imagePath = "../../images/" + createOffer.ImageName;
-                if (!Utility.CheckIfImageExists(_env, imagePath))
+                if (!Utility.CheckIfImageExists(_env, createOffer.ImageName))
                 {
                     ModelState.AddModelError(string.Empty, "image path is incorrect");
                     return View(createOffer);
