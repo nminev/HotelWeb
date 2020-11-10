@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using HotelWebsite.Models;
 using Database.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System;
 using Microsoft.AspNetCore.Hosting;
+using Models.OfferModels;
+using Models.Utility;
 
 namespace HotelWebsite.Controllers
 {

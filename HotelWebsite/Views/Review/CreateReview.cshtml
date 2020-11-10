@@ -1,4 +1,5 @@
-﻿@model CreateReviewViewModel
+﻿@using Models.ReviewModels
+@model CreateReviewViewModel
 
 
 <div class="page-title">
@@ -49,7 +50,7 @@
             </div>
         </form>
     </div>
-    @if (Model.Reviews!=null && Model.Reviews.Any())
+    @if (Model.Reviews != null && Model.Reviews.Any())
     {
         <div class="product-review-list">
             <div class="title">

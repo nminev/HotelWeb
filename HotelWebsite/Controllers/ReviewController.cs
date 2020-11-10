@@ -1,9 +1,9 @@
 ﻿using Database.Data;
-using HotelWebsite.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Models.ReviewModels;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,14 +27,7 @@ namespace HotelWebsite.Controllers
         [HttpGet]
         public IActionResult CreateReview(int id)
         {
-            var offerName = _context.Offers.Single(x => x.ID == id).Name;
-            var reviews = _context.Reviews.Where(x => x.Offer.ID == id)?.ToList();
-            var offerReview = new CreateReviewViewModel
-            {
-                OfferId = id,
-                OfferName = offerName,
-                Reviews = reviews
-            };
+            CreateReviewViewModel offerReview = GetReviewVM(id);
 
             return View(offerReview);
         }
@@ -47,10 +40,15 @@ namespace HotelWebsite.Controllers
             {
                 return View(review);
             }
+            await AddReview(review);
+
+            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offers", "Offer"); }).ConfigureAwait(false);
+        }
+
+        private async Task AddReview(CreateReviewViewModel review)
+        {
             var reviewOffer = _context.Offers.Single(x => x.ID == review.OfferId);
-
             var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
-
             var OfferReviews = _context.Reviews.Where(x => x.Offer.ID == review.OfferId).ToList();
 
             if (OfferReviews.Any())
@@ -76,8 +74,19 @@ namespace HotelWebsite.Controllers
 
 
             _context.SaveChanges();
+        }
 
-            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offers","Offer"); }).ConfigureAwait(false);
+        private CreateReviewViewModel GetReviewVM(int id)
+        {
+            var offerName = _context.Offers.Single(x => x.ID == id).Name;
+            var reviews = _context.Reviews.Where(x => x.Offer.ID == id)?.ToList();
+            var offerReview = new CreateReviewViewModel
+            {
+                OfferId = id,
+                OfferName = offerName,
+                Reviews = null
+            };
+            return offerReview;
         }
     }
 }

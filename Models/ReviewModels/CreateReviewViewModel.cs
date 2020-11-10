@@ -1,11 +1,7 @@
-﻿using Database.Data;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace HotelWebsite.Models
+namespace Models.ReviewModels
 {
     public class CreateReviewViewModel
     {
@@ -24,6 +20,6 @@ namespace HotelWebsite.Models
         [Range(1,5)]
         public int Score { get; set; }
 
-        public List<Review> Reviews { get; set; }
+        public List<ReviewViewModel> Reviews { get; set; }
     }
 }

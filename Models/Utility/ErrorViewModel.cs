@@ -1,6 +1,4 @@
-using System;
-
-namespace HotelWebsite.Models
+namespace Models.Utility
 {
     public class ErrorViewModel
     {
