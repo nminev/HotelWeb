@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using HotelWebsite.Models;
-using HotelWebsite.Data;
+using Database.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -86,7 +86,7 @@ namespace HotelWebsite.Controllers
             offer.AvailableFrom = bookOffer.From;
             offer.AvailableTo = bookOffer.To;
             _context.SaveChanges();
-            return await RedirectToActionAwait(bookOffer);
+            return await RedirectToActionAwait(bookOffer).ConfigureAwait(false);
         }
 
         private async Task<IActionResult> RedirectToActionAwait(OfferViewModel bookOffer)
@@ -193,63 +193,7 @@ namespace HotelWebsite.Controllers
             return View("Index");
         }
         #region review
-        [Authorize(Roles = "Admin,Member")]
-        [HttpGet]
-        public IActionResult CreateReview(int id)
-        {
-            var offerName = _context.Offers.Single(x => x.ID == id).Name;
-            var reviews = _context.Reviews.Where(x => x.Offer.ID == id)?.ToList();
-            var offerReview = new CreateReviewViewModel
-            {
-                OfferId = id,
-                OfferName = offerName,
-                Reviews = reviews
-            };
 
-            return View(offerReview);
-        }
-
-        [Authorize(Roles = "Admin,Member")]
-        [HttpPost]
-        public async Task<IActionResult> CreateReview(CreateReviewViewModel review)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                return View(review);
-            }
-            var reviewOffer = _context.Offers.Single(x => x.ID == review.OfferId);
-
-            var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
-
-            var OfferReviews = _context.Reviews.Where(x => x.Offer.ID == review.OfferId).ToList();
-
-            if (OfferReviews.Any())
-            {
-                var sum = OfferReviews.Sum(x => (double)x.Score) + review.Score;
-                var count = OfferReviews.Count + 1;
-                reviewOffer.Rating = sum / count;
-            }
-            else
-            {
-                reviewOffer.Rating = review.Score;
-            }
-
-            _context.Reviews.Add(
-                 new Review
-                 {
-                     Title = review.Title,
-                     Comment = review.Comment,
-                     Score = review.Score,
-                     Offer = reviewOffer,
-                     Reviewer = user
-                 });
-
-
-            _context.SaveChanges();
-
-            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offers"); }).ConfigureAwait(false);
-        }
-        [Authorize(Roles = "Admin,Member")]
         #endregion
 
         [Authorize(Roles = "Admin,Member")]

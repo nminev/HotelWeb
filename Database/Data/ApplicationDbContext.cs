@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using HotelWebsite.Models;
 
-namespace HotelWebsite.Data
+namespace Database.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

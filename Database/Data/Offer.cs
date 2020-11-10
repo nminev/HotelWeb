@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace HotelWebsite.Data
+namespace Database.Data
 {
     public class Offer
     {

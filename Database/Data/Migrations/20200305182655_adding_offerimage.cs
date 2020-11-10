@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace HotelWebsite.Data.Migrations
+namespace Database.Data.Migrations
 {
     public partial class adding_offerimage : Migration
     {

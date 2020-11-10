@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HotelWebsite.Data
+namespace Database.Data
 {
     public class OfferImage
     {
