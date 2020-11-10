@@ -113,22 +113,24 @@ namespace HotelWebsite.Controllers
         public IActionResult EditOffer(EditOfferViewModel editOffer)
         {
             var offer = _context.Offers.Single(x => x.ID == editOffer.ID);
+            string imagePath = string.Empty;
 
             offer.Description = editOffer.Description;
             offer.Name = editOffer.Name;
             offer.Price = editOffer.Price;
-            if (editOffer.ImageName != null)
+            if (!string.IsNullOrWhiteSpace(editOffer.ImageName))
             {
                 string contentRootPath = _env.ContentRootPath;
                 string webRootPath = _env.WebRootPath;
-                var imagePath = "../../images/" + editOffer.ImageName;
+                imagePath = "../../images/" + editOffer.ImageName;
                 if (!Utility.CheckIfImageExists(_env, editOffer.ImageName))
                 {
-                    ModelState.AddModelError(string.Empty,"Invalid picture path");
+                    ModelState.AddModelError(string.Empty, "Invalid picture path");
                     return View(editOffer);
                 }
                 _context.OfferImages.Add(new OfferImage { Offer = offer, ImagePath = imagePath });
             }
+
             try
             {
                 _context.SaveChanges();
@@ -169,7 +171,8 @@ namespace HotelWebsite.Controllers
                 var imagePath = "../../images/" + createOffer.ImageName;
                 if (!Utility.CheckIfImageExists(_env, imagePath))
                 {
-                    return BadRequest("FileNotFound");
+                    ModelState.AddModelError(string.Empty, "image path is incorrect");
+                    return View(createOffer);
                 }
 
                 _context.OfferImages.Add(new OfferImage
@@ -212,7 +215,7 @@ namespace HotelWebsite.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return BadRequest(this.ModelState);
+                return View(review);
             }
             var reviewOffer = _context.Offers.Single(x => x.ID == review.OfferId);
 
