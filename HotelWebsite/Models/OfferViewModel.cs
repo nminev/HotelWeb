@@ -26,14 +26,14 @@ namespace HotelWebsite.Models
 
         public List<string> ImagesSrc { get; set; }
 
-        //[Required]
-        [RestrictedDate]
+        [Required(ErrorMessage = "Cannot be empty date")]
+        [RestrictedDate(ErrorMessage = "Cannot be a date befor the current one")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime? From { get; set; }
 
-        //[Required]
-        [RestrictedDate]
+        [Required(ErrorMessage ="Cannot be empty date")]
+        [RestrictedDate(ErrorMessage ="Cannot be a date befor the current one")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime? To { get; set; }

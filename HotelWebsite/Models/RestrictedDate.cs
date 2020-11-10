@@ -10,10 +10,6 @@ namespace HotelWebsite.Models
     {
         public override bool IsValid(object date)
         {
-            if( date != null)
-            {
-                return false;
-            }
             DateTime d = Convert.ToDateTime(date);
             return d >= DateTime.Now;
         }

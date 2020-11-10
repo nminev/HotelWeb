@@ -68,9 +68,9 @@ namespace HotelWebsite.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                if (bookOffer.From < bookOffer.To)
+                if (bookOffer.To < bookOffer.From)
                 {
-                    ModelState.AddModelError(string.Empty, "The \"To\" date cannot be smaller then the \"From\" date");
+                    ModelState.AddModelError(string.Empty, "The \"From\" date cannot be smaller then the \"To\" date");
                 }
                 bookOffer = GetOffer(bookOffer.ID);
                 return View(bookOffer);
