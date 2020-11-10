@@ -21,7 +21,7 @@ namespace HotelWebsite.Models
         [StringLength(255)]
         public string Comment { get; set; }
 
-        [Range(0,5)]
+        [Range(1,5)]
         public int Score { get; set; }
 
         public List<Review> Reviews { get; set; }

@@ -19,12 +19,12 @@
         @if (image != null)
         {
 
-    <div class="picture-thumbs">
-        @foreach (var item in Model.ImagesSrc)
-        {
-            <div class="thumb-item"><img  src="@item" alt="Picture" /></div>
-        }
-    </div>
+            <div class="picture-thumbs">
+                @foreach (var item in Model.ImagesSrc)
+                {
+                    <div class="thumb-item"><img src="@item" alt="Picture" /></div>
+                }
+            </div>
         }
     </div>
     <div class="overview">
@@ -42,20 +42,23 @@
             </div>
         </div>
         <div class="prices"><div class="product-price"><span>$@Model.Price</span></div></div>
-        @if (!Model.IsBooked)
+        @if (Model.To == null && Model.From == null)
         {
-            <form asp-action="BookOffer">
+            <form asp-action="Offer" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <input class="form-control" hidden="hidden" value="@Model.ID" name="OfferId" />
                 </div>
                 <div class="form-group">
+                    <span asp-validation-for="From" class="text-danger"></span>
                     <label class="control-label"></label>
-                    <input type="date" class="form-control" value="@null" name="From" />
+                    <input asp-for="From" type="date" class="form-control" value="@null" name="From" />
                     <span class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <span asp-validation-for="To" class="text-danger"></span>
                     <label class="control-label"></label>
-                    <input type="date" class="form-control" value="@null" name="To" />
+                    <input asp-for="To" type="date" class="form-control" value="@null" name="To" />
                     <span class="text-danger"></span>
                 </div>
                 <div class="form-group">

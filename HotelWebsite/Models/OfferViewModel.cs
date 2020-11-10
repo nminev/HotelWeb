@@ -9,19 +9,34 @@ namespace HotelWebsite.Models
     public class OfferViewModel
     {
         private double price;
+
         [Required]
         public int ID { get; set; }
+
         [Range(0, int.MaxValue)]
-        public double Price { get{ return Math.Round(price, 2); } set => price = value; }
+        public double Price { get { return Math.Round(price, 2); } set => price = value; }
+
         [StringLength(50)]
         public string Name { get; set; }
+
         [StringLength(255)]
         public string Description { get; set; }
 
         public double Raiting { get; set; }
 
-        public bool IsBooked { get; set; }
-
         public List<string> ImagesSrc { get; set; }
+
+        //[Required]
+        [RestrictedDate]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
+        public DateTime? From { get; set; }
+
+        //[Required]
+        [RestrictedDate]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
+        public DateTime? To { get; set; }
+
     }
 }
