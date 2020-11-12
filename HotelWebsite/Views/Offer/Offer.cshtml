@@ -50,14 +50,14 @@
                     <input class="form-control" hidden="hidden" value="@Model.ID" name="OfferId" />
                 </div>
                 <div class="form-group">
+                    <label class="control-label">From</label>
                     <span asp-validation-for="From" class="text-danger"></span>
-                    <label class="control-label"></label>
                     <input asp-for="From" type="date" class="form-control" value="@null" name="From" />
                     <span class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label class="control-label">To</label>
                     <span asp-validation-for="To" class="text-danger"></span>
-                    <label class="control-label"></label>
                     <input asp-for="To" type="date" class="form-control" value="@null" name="To" />
                     <span class="text-danger"></span>
                 </div>
