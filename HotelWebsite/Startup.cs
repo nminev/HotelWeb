@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Service;
+using Service.Offers;
 using Service.Reviews;
 using System;
 using System.Threading.Tasks;
@@ -44,6 +45,7 @@ namespace HotelWebsite
             });
 
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IOfferService, OfferService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

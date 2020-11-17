@@ -40,7 +40,7 @@ namespace HotelWebsite.Controllers
         [Authorize(Roles = "Admin,Member")]
         public IActionResult Offers()
         {
-            return View(GetOffers());
+            return View(_offerService.GetOffers());
         }
 
         [Authorize(Roles = "Admin,Member")]
