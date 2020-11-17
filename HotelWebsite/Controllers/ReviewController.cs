@@ -1,11 +1,9 @@
-﻿using Database.Data;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Models.ReviewModels;
-using Service;
-using System.Linq;
+using Service.Reviews;
 using System.Threading.Tasks;
 
 namespace HotelWebsite.Controllers

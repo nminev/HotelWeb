@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Service
+namespace Service.Reviews
 {
     public interface IReviewService
     {

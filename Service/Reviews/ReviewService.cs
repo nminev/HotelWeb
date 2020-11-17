@@ -6,7 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Service
+namespace Service.Reviews
 {
     public class ReviewService : IReviewService
     {

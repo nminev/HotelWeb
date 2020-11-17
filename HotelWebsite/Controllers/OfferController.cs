@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,6 +10,8 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using Models.OfferModels;
 using Models.Utility;
+using Microsoft.AspNetCore.Http;
+using Service.Offers;
 
 namespace HotelWebsite.Controllers
 {
@@ -20,13 +21,15 @@ namespace HotelWebsite.Controllers
         private ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _manager;
         private readonly IWebHostEnvironment _env;
+        private readonly IOfferService _offerService;
 
-        public OfferController(ILogger<OfferController> logger, ApplicationDbContext context, UserManager<IdentityUser> manager, IWebHostEnvironment env)
+        public OfferController(ILogger<OfferController> logger, ApplicationDbContext context, UserManager<IdentityUser> manager, IWebHostEnvironment env, IOfferService offerService)
         {
             _logger = logger;
             _context = context;
             _manager = manager;
             _env = env;
+            _offerService = offerService;
         }
 
         public IActionResult Index()
@@ -37,31 +40,14 @@ namespace HotelWebsite.Controllers
         [Authorize(Roles = "Admin,Member")]
         public IActionResult Offers()
         {
-            var result = new List<OffersViewModel>();
-            foreach (var item in _context.Offers.Where(x =>
-            x.User == null))
-            {
-                var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
-
-                result.Add(new OffersViewModel
-                {
-                    ID = item.ID,
-                    Name = item.Name,
-                    Price = item.Price,
-                    Raiting = item.Rating,
-                    IsBooked = false,
-                    ImageSrc = imageSrc
-                });
-            }
-            return View(result);
+            return View(GetOffers());
         }
 
         [Authorize(Roles = "Admin,Member")]
         [HttpGet]
         public IActionResult Offer(int id)
         {
-            OfferViewModel result = GetOffer(id);
-            return View(result);
+            return View(_offerService.GetOffer(id));
         }
 
         [HttpPost]
@@ -73,25 +59,19 @@ namespace HotelWebsite.Controllers
                 {
                     ModelState.AddModelError(string.Empty, "The \"From\" date cannot be smaller then the \"To\" date");
                 }
-                bookOffer = GetOffer(bookOffer.ID);
+                bookOffer = _offerService.GetOffer(bookOffer.ID);
                 return View(bookOffer);
             }
-            var offer = _context.Offers.Single(x => x.ID == bookOffer.ID);
 
-            var user = await _manager.GetUserAsync(HttpContext.User).ConfigureAwait(false);
-            if (user == null)
+            try
             {
-                return BadRequest("User is null");
+                _offerService.BookOffer(bookOffer, HttpContext.User);
             }
-            offer.User = user;
-            offer.AvailableFrom = bookOffer.From;
-            offer.AvailableTo = bookOffer.To;
-            _context.SaveChanges();
-            return await RedirectToActionAwait(bookOffer).ConfigureAwait(false);
-        }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
 
-        private async Task<IActionResult> RedirectToActionAwait(OfferViewModel bookOffer)
-        {
             return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id = bookOffer.ID }); }).ConfigureAwait(false);
         }
 
@@ -99,48 +79,21 @@ namespace HotelWebsite.Controllers
         [HttpGet]
         public IActionResult EditOffer(int id)
         {
-            var offer = _context.Offers.Single(x => x.ID == id);
-            var result = new EditOfferViewModel
-            {
-                ID = offer.ID,
-                Name = offer.Name,
-                Description = offer.Description,
-                Price = offer.Price
-            };
-            return View(result);
+            return View(_offerService.GetEditOffer(id));
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult EditOffer(EditOfferViewModel editOffer)
         {
-            var offer = _context.Offers.Single(x => x.ID == editOffer.ID);
-            string imagePath = string.Empty;
-
-            offer.Description = editOffer.Description;
-            offer.Name = editOffer.Name;
-            offer.Price = editOffer.Price;
-            if (!string.IsNullOrWhiteSpace(editOffer.ImageName))
+            if (!Utility.CheckIfImageExists(_env, editOffer.ImageName))
             {
-                string contentRootPath = _env.ContentRootPath;
-                string webRootPath = _env.WebRootPath;
-                imagePath = "../../images/" + editOffer.ImageName;
-                if (!Utility.CheckIfImageExists(_env, editOffer.ImageName))
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid picture path");
-                    return View(editOffer);
-                }
-                _context.OfferImages.Add(new OfferImage { Offer = offer, ImagePath = imagePath });
+                ModelState.AddModelError(string.Empty, "Invalid picture path");
+                return View(editOffer);
             }
 
-            try
-            {
-                _context.SaveChanges();
+            _offerService.PostEditOffer(editOffer);
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500);
-            }
             return View("Index");
         }
 
@@ -155,68 +108,20 @@ namespace HotelWebsite.Controllers
         [HttpPost]
         public IActionResult CreateOffer(CreateOfferViewModel createOffer)
         {
-            if (createOffer.ImageName == null)
+            if (!Utility.CheckIfImageExists(_env, createOffer.ImageName))
             {
-                _context.Offers.Add(
-               new Offer
-               {
-                   Name = createOffer.Name,
-                   Price = createOffer.Price,
-                   Description = createOffer.Description
-
-               });
-
+                ModelState.AddModelError(string.Empty, "image path is incorrect");
+                return View(createOffer);
             }
-            else
-            {
-                var imagePath = "../../images/" + createOffer.ImageName;
-                if (!Utility.CheckIfImageExists(_env, createOffer.ImageName))
-                {
-                    ModelState.AddModelError(string.Empty, "image path is incorrect");
-                    return View(createOffer);
-                }
-
-                _context.OfferImages.Add(new OfferImage
-                {
-                    Offer = new Offer
-                    {
-                        Name = createOffer.Name,
-                        Price = createOffer.Price,
-                        Description = createOffer.Description
-
-                    },
-                    ImagePath = imagePath
-                });
-            }
-
-            _context.SaveChanges();
+            _offerService.AddOffer(createOffer);
 
             return View("Index");
         }
-        #region review
-
-        #endregion
 
         [Authorize(Roles = "Admin,Member")]
         public IActionResult GetBookedOffers(string userId)
         {
-            List<OffersViewModel> result = new List<OffersViewModel>();
-            var offers = _context.Offers
-                .Where(x => x.UserId == userId).ToList();
-            foreach (var item in offers)
-            {
-                var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
-
-                result.Add(new OffersViewModel
-                {
-                    ID = item.ID,
-                    Name = item.Name,
-                    Price = item.Price,
-                    Raiting = item.Rating,
-                    IsBooked = true,
-                    ImageSrc = imageSrc
-                });
-            }
+            List<OffersViewModel> result = _offerService.GetBooked(userId);
 
             return View("Offers", result);
         }
@@ -225,25 +130,6 @@ namespace HotelWebsite.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-        private OfferViewModel GetOffer(int id)
-        {
-            var offer = _context.Offers.Single(x => x.ID == id);
-
-            var imagesSrc = _context.OfferImages.Where(x => x.OfferId == id).Select(x => x.ImagePath).ToList();
-
-            var result = new OfferViewModel
-            {
-                ID = offer.ID,
-                Name = offer.Name,
-                Description = offer.Description,
-                Raiting = offer.Rating,
-                Price = offer.Price,
-                From = offer.AvailableFrom,
-                To = offer.AvailableTo,
-                ImagesSrc = imagesSrc
-            };
-            return result;
         }
     }
 }
