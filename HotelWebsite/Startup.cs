@@ -1,4 +1,4 @@
-using HotelWebsite.Data;
+using Database.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Service;
+using Service.Offers;
+using Service.Reviews;
 using System;
 using System.Threading.Tasks;
 
@@ -40,6 +43,9 @@ namespace HotelWebsite
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequireUppercase = false;
             });
+
+            services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IOfferService, OfferService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
