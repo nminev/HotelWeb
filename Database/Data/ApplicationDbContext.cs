@@ -10,6 +10,8 @@ namespace Database.Data
     {
         public DbSet<Offer> Offers { get; set; }
 
+        public DbSet<Bookings> Bookings { get; set; }
+
         public DbSet<Review> Reviews { get; set; }
 
         public DbSet<OfferImage> OfferImages { get; set; }
@@ -65,7 +67,7 @@ namespace Database.Data
             this.OfferImages.Add(new OfferImage
             {
                 ImagePath = "../../images/Hotel-placeholder-1.png",
-                Offer= offerOne
+                Offer = offerOne
             });
             this.OfferImages.Add(new OfferImage
             {

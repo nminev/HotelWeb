@@ -31,20 +31,11 @@
                     <div class="prices">
                         <span class="price actual-price">$@item.Price</span>
                     </div>
-                    @if (!item.IsBooked)
-                    {
-                        <div class="button">
-                            <input type="button"
-                                   value="Book"
-                                   onclick="location.href='@Url.Action("Offer", "Offer",new { item.ID })'" />
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text">
-                            <span>This offer is already booked</span>
-                        </div>
-                    }
+                    <div class="button">
+                        <input type="button"
+                               value="Book"
+                               onclick="location.href='@Url.Action("Offer", "Offer",new { item.ID })'" />
+                    </div>
                 </div>
             </div>
         }

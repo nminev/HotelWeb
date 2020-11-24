@@ -53,24 +53,31 @@ namespace Service.Offers
 
         public void BookOffer(OfferViewModel bookOffer, ClaimsPrincipal _user)
         {
-            var offer = _context.Offers.Single(x => x.ID == bookOffer.ID);
-
             var user = _manager.GetUserAsync(_user).Result;
             if (user == null)
             {
                 throw new ArgumentNullException();
             }
-            offer.User = user;
-            offer.AvailableFrom = bookOffer.From;
-            offer.AvailableTo = bookOffer.To;
+
+            var booking = new Bookings
+            {
+                From = bookOffer.From,
+                To = bookOffer.To,
+                User = user,
+                OfferId = bookOffer.OfferID
+            };
+
+            _context.Bookings.Add(booking);
             _context.SaveChanges();
         }
 
         public List<OffersViewModel> GetBooked(string userId)
         {
             List<OffersViewModel> result = new List<OffersViewModel>();
-            var offers = _context.Offers
+            var bookings = _context.Bookings
                 .Where(x => x.UserId == userId).ToList();
+
+            var offers = (bookings != null || bookings.Any()) ? _context.Offers.Where(x => bookings.Any(y => y.OfferId == x.ID)) : null;
             foreach (var item in offers)
             {
                 var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
@@ -81,7 +88,6 @@ namespace Service.Offers
                     Name = item.Name,
                     Price = item.Price,
                     Raiting = item.Rating,
-                    IsBooked = true,
                     ImageSrc = imageSrc
                 });
             }
@@ -104,29 +110,28 @@ namespace Service.Offers
 
         public OfferViewModel GetOffer(int id)
         {
-            var offer = _context.Offers.Single(x => x.ID == id);
+            var offer = _context.Offers.SingleOrDefault(x => x.ID == id);
+            var booking = _context.Bookings.SingleOrDefault(x => x.ID == id);
 
             var imagesSrc = _context.OfferImages.Where(x => x.OfferId == id).Select(x => x.ImagePath).ToList();
 
             var result = new OfferViewModel
             {
-                ID = offer.ID,
+                OfferID = offer.ID,
                 Name = offer.Name,
                 Description = offer.Description,
                 Raiting = offer.Rating,
                 Price = offer.Price,
-                From = offer.AvailableFrom,
-                To = offer.AvailableTo,
                 ImagesSrc = imagesSrc
             };
+
             return result;
         }
 
         public IEnumerable<OffersViewModel> GetOffers()
         {
             var result = new List<OffersViewModel>();
-            foreach (var item in _context.Offers.Where(x =>
-            x.User == null))
+            foreach (var item in _context.Offers)
             {
                 var imageSrc = _context.OfferImages.FirstOrDefault(x => x.OfferId == item.ID)?.ImagePath;
 
@@ -136,7 +141,6 @@ namespace Service.Offers
                     Name = item.Name,
                     Price = item.Price,
                     Raiting = item.Rating,
-                    IsBooked = false,
                     ImageSrc = imageSrc
                 });
             }

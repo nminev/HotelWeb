@@ -51,7 +51,7 @@ namespace HotelWebsite.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Offer(OfferViewModel bookOffer)
+        public async Task<IActionResult> BookOffer(OfferViewModel bookOffer)
         {
             if (!this.ModelState.IsValid)
             {
@@ -59,8 +59,8 @@ namespace HotelWebsite.Controllers
                 {
                     ModelState.AddModelError(string.Empty, "The \"From\" date cannot be smaller then the \"To\" date");
                 }
-                bookOffer = _offerService.GetOffer(bookOffer.ID);
-                return View(bookOffer);
+                bookOffer = _offerService.GetOffer(bookOffer.OfferID);
+                return View("Offer",bookOffer);
             }
 
             try
@@ -72,7 +72,7 @@ namespace HotelWebsite.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id = bookOffer.ID }); }).ConfigureAwait(false);
+            return await Task.Run<ActionResult>(() => { return RedirectToAction("Offer", "Offer", new { id = bookOffer.OfferID }); }).ConfigureAwait(false);
         }
 
         [Authorize(Roles = "Admin")]

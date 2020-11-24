@@ -10,7 +10,7 @@ namespace Models.OfferModels
         private double price;
 
         [Required]
-        public int ID { get; set; }
+        public int OfferID { get; set; }
 
         [Range(0, int.MaxValue)]
         public double Price { get { return Math.Round(price, 2); } set => price = value; }
@@ -29,13 +29,13 @@ namespace Models.OfferModels
         [RestrictedDate(ErrorMessage = "Cannot be a date befor the current one")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
-        public DateTime? From { get; set; }
+        public DateTime From { get; set; }
 
         [Required(ErrorMessage ="Cannot be empty date")]
         [RestrictedDate(ErrorMessage ="Cannot be a date befor the current one")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
-        public DateTime? To { get; set; }
+        public DateTime To { get; set; }
 
     }
 }

@@ -1,0 +1,33 @@
+﻿@using Models.OfferModels
+@model OfferViewModel
+
+@if (Model.To == default(DateTime) && Model.From == default(DateTime))
+{
+    <form asp-action="BookOffer" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <input class="form-control" hidden="hidden" value="@Model.OfferID" name="OfferId" />
+        </div>
+        <div class="form-group">
+            <span asp-validation-for="From" class="text-danger"></span>
+            <label class="control-label"></label>
+            <input asp-for="From" type="date" class="form-control" value="@null" name="From" />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <span asp-validation-for="To" class="text-danger"></span>
+            <label class="control-label"></label>
+            <input asp-for="To" type="date" class="form-control" value="@null" name="To" />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Book" class="btn btn-primary" />
+        </div>
+    </form>
+}
+else
+{
+    <div class="text">
+        <span>This offer is already booked</span>
+    </div>
+}
